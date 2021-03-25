@@ -1,0 +1,15 @@
+<launch>
+
+    <arg name="serial_port" default="/dev/ttyUSB1" />
+    <arg name="frame_id" default="base_link" />
+    <arg name="frequency" default="100" /> 
+
+    <node pkg="serial_odometry_omni" type="serial_odometry_node.py" name="ros_serial_odometry_node" output="screen">
+        <param name="serial_port" value="$(arg serial_port)" />
+        <param name="frame_id" value="$(arg frame_id)" />
+        <param name="frequency" value="$(arg frequency)" />
+    </node>
+
+  <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find serial_odometry)/launch/serial_odometry.rviz" output="screen"/-->
+
+</launch>

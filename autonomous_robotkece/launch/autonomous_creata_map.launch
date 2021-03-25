@@ -1,0 +1,54 @@
+<launch>
+
+    <node pkg="lslidar_n301_driver" type="lslidar_n301_driver_node" name="lslidar_n301_driver_node" output="screen">
+    <param name="frame_id" value="lslidar"/>
+    <param name="device_ip" value="192.168.1.222"/>
+    <param name="device_port" value="2368"/>
+  </node>
+
+    <node pkg="lslidar_n301_decoder" type="lslidar_n301_decoder_node" name="lslidar_n301_decoder_node" output="screen">
+    <param name="fixed_frame_id" value="map"/>
+    <param name="child_frame_id" value="lslidar"/>
+    <param name="point_num" value="100000"/>
+    <param name="angle_disable_min" value="0"/>
+    <param name="angle_disable_max" value="0"/>
+    <param name="min_range" value="0.1"/>
+    <param name="max_range" value="100.0"/>
+    <param name="frequency" value="10.0"/>
+    <param name="use_gps_ts" value="false"/>
+    <param name="publish_point_cloud" value="true"/>
+  </node>
+
+    <arg name="frame_id" default="imu_link" />
+
+	<node pkg="tf2_ros" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0 1 fixed_frame $(arg frame_id)" />    
+
+    <node pkg="serial_imu_bno055" type="serial_imu_node.py" name="ros_serial_imu_node" output="screen">
+        <param name="serial_port" value="/dev/ttyUSB0" />
+        <param name="frame_id" value="imu_link" />
+        <param name="frequency" value="100" />
+  </node>
+
+    <node pkg="serial_odometry_omni" type="serial_odometry_node.py" name="ros_serial_odometry_node" output="screen">
+        <param name="serial_port" value="/dev/ttyUSB1" />
+        <param name="frame_id" value="base_link" />
+        <param name="frequency" value="100" />
+  </node>
+
+    <param name="robot_description"
+        textfile="$(find cartographer_ros)/urdf/backpack_2d.urdf" />
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher" />
+
+    <node name="cartographer_node" pkg="cartographer_ros"
+        type="cartographer_node" args="
+            -configuration_directory $(find autonomous_robotkece)/configuration_files
+            -configuration_basename autonomous_config_2d.lua"
+        output="screen">
+  </node>
+
+    <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
+        type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
+
+</launch>
